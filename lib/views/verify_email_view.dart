@@ -45,7 +45,8 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
             onPressed: () async {
               final shouldLogout = await showLogOutDialog(context);
               if (shouldLogout) {
-                AuthService.firebase().logOut();
+                await AuthService.firebase().logOut();
+
                 if (context.mounted) {
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     loginRoute,

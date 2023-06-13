@@ -106,4 +106,14 @@ class FirebaseAuthProvider implements AuthProvider {
       throw UserNotLoggedInAuthException();
     }
   }
+
+  @override
+  Future<void> reload() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.reload();
+    } else {
+      throw UserNotLoggedInAuthException();
+    }
+  }
 }

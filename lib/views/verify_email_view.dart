@@ -27,26 +27,26 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
             },
             child: const Text("Send verification email"),
           ),
-          // TextButton(
-          //   onPressed: () async {
-          //     if (AuthService.firebase().currentUser?.isEmailVerified ??
-          //         false) {
-          //       if (context.mounted) {
-          //         Navigator.of(context).pushNamedAndRemoveUntil(
-          //           notesRoute,
-          //           (route) => false,
-          //         );
-          //       }
-          //     }
-          //   },
-          //   child: const Text("Refresh"),
-          // ),
+          TextButton(
+            onPressed: () async {
+              await AuthService.firebase().reload();
+              if (AuthService.firebase().currentUser?.isEmailVerified ??
+                  false) {
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    notesRoute,
+                    (route) => false,
+                  );
+                }
+              }
+            },
+            child: const Text("Refresh"),
+          ),
           TextButton(
             onPressed: () async {
               final shouldLogout = await showLogOutDialog(context);
               if (shouldLogout) {
                 await AuthService.firebase().logOut();
-
                 if (context.mounted) {
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     loginRoute,

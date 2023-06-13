@@ -39,4 +39,7 @@ class AuthService implements AuthProvider {
 
   @override
   Future<void> initialise() async => await provider.initialise();
+
+  @override
+  Future<void> reload() => provider.reload();
 }

@@ -1,17 +1,17 @@
-class DatabaseAlreadyOpenException implements Exception {}
+class DatabaseAlreadyOpenCrudException implements Exception {}
 
-class UnableToGetDocumentsdirectoryException implements Exception {}
+class UnableToGetDocumentsdirectoryCrudException implements Exception {}
 
-class DatabaseIsNotOpenException implements Exception {}
+class DatabaseIsNotOpenCrudException implements Exception {}
 
-class CouldNotDeleteUserException implements Exception {}
+class CouldNotDeleteUserCrudException implements Exception {}
 
-class UserAlreadyExistsException implements Exception {}
+class UserAlreadyExistsCrudException implements Exception {}
 
-class CouldNotFindUserException implements Exception {}
+class CouldNotFindUserCrudException implements Exception {}
 
-class CouldNotDeleteNoteException implements Exception {}
+class CouldNotDeleteNoteCrudException implements Exception {}
 
-class CouldNotFindNoteException implements Exception {}
+class CouldNotFindNoteCrudException implements Exception {}
 
-class CouldNotUpdateNoteException implements Exception {}
+class CouldNotUpdateNoteCrudException implements Exception {}

@@ -24,7 +24,7 @@ class NotesService {
   Database _getDatabaseOrThrow() {
     final db = _db;
     if (db == null) {
-      throw DatabaseIsNotOpenException();
+      throw DatabaseIsNotOpenCrudException();
     } else {
       return db;
     }
@@ -32,7 +32,7 @@ class NotesService {
 
   Future<void> open() async {
     if (_db != null) {
-      throw DatabaseAlreadyOpenException();
+      throw DatabaseAlreadyOpenCrudException();
     }
     try {
       final docsPath = await getApplicationDocumentsDirectory();
@@ -45,14 +45,14 @@ class NotesService {
       await db.execute(createNoteTable);
       await _cacheNotes();
     } on MissingPlatformDirectoryException {
-      throw UnableToGetDocumentsdirectoryException();
+      throw UnableToGetDocumentsdirectoryCrudException();
     }
   }
 
   Future<void> close() async {
     final db = _db;
     if (db == null) {
-      throw DatabaseIsNotOpenException();
+      throw DatabaseIsNotOpenCrudException();
     } else {
       await db.close();
       _db = null;
@@ -62,7 +62,7 @@ class NotesService {
   Future<void> _ensureDbIsOpen() async {
     try {
       await open();
-    } on DatabaseAlreadyOpenException {
+    } on DatabaseAlreadyOpenCrudException {
       //do nothing
     }
   }
@@ -80,7 +80,7 @@ class NotesService {
       whereArgs: [email.toLowerCase()],
     );
     if (results.isNotEmpty) {
-      throw UserAlreadyExistsException();
+      throw UserAlreadyExistsCrudException();
     }
 
     //creates user
@@ -104,7 +104,7 @@ class NotesService {
       whereArgs: [email.toLowerCase()],
     );
     if (deletedCount != 1) {
-      throw CouldNotDeleteUserException();
+      throw CouldNotDeleteUserCrudException();
     }
   }
 
@@ -120,7 +120,7 @@ class NotesService {
     );
 
     if (results.isEmpty) {
-      throw CouldNotFindUserException();
+      throw CouldNotFindUserCrudException();
     } else {
       return DatabaseUser.fromRow(results.first);
     }
@@ -130,7 +130,7 @@ class NotesService {
     try {
       final user = await getUser(email: email);
       return user;
-    } on CouldNotFindUserException {
+    } on CouldNotFindUserCrudException {
       final createdUser = await createUser(email: email);
       return createdUser;
     } catch (e) {
@@ -146,7 +146,7 @@ class NotesService {
     //make sure owner exists in the database with correct id.
     final dbUser = await getUser(email: owner.email);
     if (dbUser != owner) {
-      throw CouldNotFindUserException();
+      throw CouldNotFindUserCrudException();
     }
 
     //create the note.
@@ -180,7 +180,7 @@ class NotesService {
       whereArgs: [id],
     );
     if (deletedCount == 0) {
-      throw CouldNotDeleteNoteException();
+      throw CouldNotDeleteNoteCrudException();
     } else {
       final countBefore = _notes.length;
       _notes.removeWhere((note) => note.id == id);
@@ -212,7 +212,7 @@ class NotesService {
     );
 
     if (notes.isEmpty) {
-      throw CouldNotFindNoteException();
+      throw CouldNotFindNoteCrudException();
     } else {
       final note = DatabaseNote.fromRow(notes.first);
       _notes.removeWhere((element) => note.id == id);
@@ -252,7 +252,7 @@ class NotesService {
         whereArgs: [note.id]);
 
     if (updatesCount == 0) {
-      throw CouldNotUpdateNoteException();
+      throw CouldNotUpdateNoteCrudException();
     } else {
       final updatedNote = await getNote(id: note.id);
       _notes.removeWhere((note) => note.id == updatedNote.id);

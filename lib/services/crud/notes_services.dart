@@ -8,16 +8,18 @@ import 'package:path_provider/path_provider.dart';
 
 class NotesService {
   Database? _db;
-
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
   List<DatabaseNote> _notes = [];
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
-
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
   //note service singleton
-  NotesService._sharedInstance();
   static final NotesService _shared = NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
   factory NotesService() => _shared;
 
   //Database functions
@@ -214,11 +216,7 @@ class NotesService {
     if (notes.isEmpty) {
       throw CouldNotFindNoteCrudException();
     } else {
-      final note = DatabaseNote.fromRow(notes.first);
-      _notes.removeWhere((element) => note.id == id);
-      _notes.add(note);
-      _notesStreamController.add(_notes);
-      return note;
+      return DatabaseNote.fromRow(notes.first);
     }
   }
 
@@ -267,6 +265,8 @@ class NotesService {
     _notes = allNotes.toList();
     _notesStreamController.add(_notes);
   }
+
+  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 }
 
 @immutable

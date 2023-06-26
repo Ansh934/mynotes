@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:mynotes/utilities/show_generic_dialog.dart';
 
-Future<void> showErrorDialog(
+Future<bool> showDeleteDialog(
   BuildContext context,
-  String text,
 ) {
   return showGenericDialog(
     context: context,
-    title: "An error occurred",
-    content: text,
+    title: "Delete",
+    content: "Are you sure you want to delete this item?",
     optionsBuilder: () => {
-      "OK": null,
+      'Cancel': false,
+      'Delete': true,
     },
-  );
+  ).then((value) => value ?? false);
 }

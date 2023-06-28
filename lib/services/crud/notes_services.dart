@@ -49,6 +49,7 @@ class NotesService {
       //create note table
       await db.execute(createNoteTable);
       await _cacheNotes();
+      return;
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentsdirectoryCrudException();
     }

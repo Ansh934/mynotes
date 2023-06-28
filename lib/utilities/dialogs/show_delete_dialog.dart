@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mynotes/utilities/show_generic_dialog.dart';
+import 'package:mynotes/utilities/dialogs/show_generic_dialog.dart';
 
 Future<bool> showDeleteDialog(
   BuildContext context,

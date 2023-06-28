@@ -37,7 +37,7 @@ class NotesService {
 
   Future<void> open() async {
     if (_db != null) {
-      throw DatabaseAlreadyOpenCrudException();
+      return; //returns nothing
     }
     try {
       final docsPath = await getApplicationDocumentsDirectory();
@@ -65,11 +65,7 @@ class NotesService {
   }
 
   Future<void> _ensureDbIsOpen() async {
-    try {
-      await open();
-    } on DatabaseAlreadyOpenCrudException {
-      //do nothing
-    }
+    await open();
   }
 
   //User functions

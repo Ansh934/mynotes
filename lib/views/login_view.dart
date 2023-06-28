@@ -37,33 +37,64 @@ class _LoginViewState extends State<LoginView> {
         children: [
           Padding(
             padding: const EdgeInsets.only(
-              top: 8.0,
-              left: 8,
-              right: 8,
+              top: 32,
+              left: 24,
+              right: 24,
+              bottom: 8,
             ),
-            child: TextField(
-              controller: _email,
-              keyboardType: TextInputType.emailAddress,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                hintText: "Enter your email",
+            child: SizedBox(
+              height: 60,
+              child: TextField(
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    prefixIconColor: MaterialStateColor.resolveWith(
+                        (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.focused)) {
+                        return Colors.blue;
+                      }
+                      if (states.contains(MaterialState.error)) {
+                        return Colors.red;
+                      }
+                      return Colors.grey.shade800;
+                    }),
+                    hintText: "Enter your email",
+                    border: const OutlineInputBorder(),
+                    labelText: 'Email'),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(
-              left: 8,
-              right: 8,
-              bottom: 8.0,
+              left: 24,
+              right: 24,
+              bottom: 8,
             ),
-            child: TextField(
-              controller: _password,
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                hintText: "Enter your password",
+            child: SizedBox(
+              height: 60,
+              child: TextFormField(
+                controller: _password,
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.password_outlined),
+                    prefixIconColor: MaterialStateColor.resolveWith(
+                        (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.focused)) {
+                        return Colors.blue;
+                      }
+                      if (states.contains(MaterialState.error)) {
+                        return Colors.red;
+                      }
+                      return Colors.grey.shade800;
+                    }),
+                    hintText: "Enter your password",
+                    border: const OutlineInputBorder(),
+                    labelText: 'Password'),
               ),
             ),
           ),

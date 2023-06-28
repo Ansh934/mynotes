@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/enums/menu_actions.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
-import 'package:mynotes/services/crud/crud_exceptions.dart';
 import 'package:mynotes/services/crud/notes_services.dart';
 import 'package:mynotes/utilities/dialogs/show_logout_dialog.dart';
 import 'package:mynotes/views/notes/notes_list_view.dart';
@@ -21,11 +20,7 @@ class _NotesViewState extends State<NotesView> {
   @override
   void initState() {
     _notesService = NotesService();
-    try {
-      _notesService.open();
-    } on DatabaseAlreadyOpenCrudException {
-      //do nothing, Its good that its already open
-    }
+    _notesService.open();
     super.initState();
   }
 

@@ -35,9 +35,9 @@ class NotesService {
     }
   }
 
-  Future<void> open() async {
+  Future<bool?> open() async {
     if (_db != null) {
-      throw DatabaseAlreadyOpenCrudException();
+      return true;
     }
     try {
       final docsPath = await getApplicationDocumentsDirectory();
@@ -49,6 +49,7 @@ class NotesService {
       //create note table
       await db.execute(createNoteTable);
       await _cacheNotes();
+      return null;
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentsdirectoryCrudException();
     }
@@ -64,12 +65,9 @@ class NotesService {
     }
   }
 
-  Future<void> _ensureDbIsOpen() async {
-    try {
-      await open();
-    } on DatabaseAlreadyOpenCrudException {
-      //do nothing
-    }
+  Future<bool?> _ensureDbIsOpen() async {
+    final dbStatus = await open();
+    return dbStatus;
   }
 
   //User functions

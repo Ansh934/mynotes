@@ -1,5 +1,3 @@
-class DatabaseAlreadyOpenCrudException implements Exception {}
-
 class UnableToGetDocumentsdirectoryCrudException implements Exception {}
 
 class DatabaseIsNotOpenCrudException implements Exception {}

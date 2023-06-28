@@ -15,3 +15,5 @@ class CouldNotDeleteNoteCrudException implements Exception {}
 class CouldNotFindNoteCrudException implements Exception {}
 
 class CouldNotUpdateNoteCrudException implements Exception {}
+
+class UserShouldBeSetBeforeReadingAllNotesCrudException implements Exception {}

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mynotes/extensions/list/filter.dart';
 import 'package:mynotes/services/crud/crud_exceptions.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' show join;
@@ -9,6 +10,7 @@ import 'package:path_provider/path_provider.dart'
 
 class NotesService {
   Database? _db;
+  DatabaseUser? _user;
   late final StreamController<List<DatabaseNote>> _notesStreamController;
   List<DatabaseNote> _notes = [];
 
@@ -129,12 +131,21 @@ class NotesService {
     }
   }
 
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({
+    required String email,
+    bool setAsCurrentuser = true,
+  }) async {
     try {
       final user = await getUser(email: email);
+      if (setAsCurrentuser) {
+        _user = user;
+      }
       return user;
     } on CouldNotFindUserCrudException {
       final createdUser = await createUser(email: email);
+      if (setAsCurrentuser) {
+        _user = createdUser;
+      }
       return createdUser;
     } catch (e) {
       rethrow;
@@ -267,7 +278,15 @@ class NotesService {
     _notesStreamController.add(_notes);
   }
 
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes =>
+      _notesStreamController.stream.filter((note) {
+        final currentUser = _user;
+        if (currentUser != null) {
+          return note.userId == currentUser.id;
+        } else {
+          throw UserShouldBeSetBeforeReadingAllNotesCrudException();
+        }
+      });
 }
 
 @immutable

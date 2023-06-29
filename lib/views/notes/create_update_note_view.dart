@@ -89,7 +89,15 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("New Note")),
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text(
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+            "New Note"),
+      ),
       body: FutureBuilder(
         future: createOrGetExistingNote(context),
         builder: (context, snapshot) {
@@ -98,22 +106,25 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
               _setupTextControllerListener();
               return Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: TextField(
                     controller: _textController,
                     decoration: const InputDecoration(
                       hintText: "Start typing your note",
                       border: OutlineInputBorder(),
                       labelText: 'Note',
+                      alignLabelWithHint: true,
                     ),
                     autofocus: true,
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
+                    minLines: 8,
                   ),
                 ),
               );
             default:
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
           }
         },
       ),

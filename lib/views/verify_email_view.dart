@@ -14,17 +14,41 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Verification")),
+      appBar: AppBar(
+        toolbarHeight: 120,
+        centerTitle: true,
+        title: const Text(
+            style: TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+            ),
+            "Verification"),
+      ),
       body: Column(
         children: [
-          const Text(
-              "We've sent you an verification email, please open it in order to verify your email."),
-          const Text(
-              "If you haven't received an verification email yet, press the button below  "),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              "We've sent you an verification email, please open it in order to verify your email.",
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              "If you haven't received an verification email yet, press the button below  ",
+            ),
+          ),
           TextButton(
             onPressed: () async {
               await AuthService.firebase().sendEmailVerification();
             },
+            style: ButtonStyle(
+                backgroundColor: MaterialStatePropertyAll(
+                    Theme.of(context).colorScheme.primaryContainer)),
             child: const Text("Send verification email"),
           ),
           TextButton(
@@ -55,6 +79,9 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
                 }
               }
             },
+            style: ButtonStyle(
+                backgroundColor: MaterialStatePropertyAll(
+                    Theme.of(context).colorScheme.errorContainer)),
             child: const Text("Log Out"),
           ),
         ],

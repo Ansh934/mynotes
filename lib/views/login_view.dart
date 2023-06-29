@@ -32,7 +32,16 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Login")),
+      appBar: AppBar(
+        toolbarHeight: 140,
+        centerTitle: true,
+        title: const Text(
+            style: TextStyle(
+              fontSize: 48,
+              fontWeight: FontWeight.bold,
+            ),
+            "Login"),
+      ),
       body: Column(
         children: [
           Padding(
@@ -42,29 +51,26 @@ class _LoginViewState extends State<LoginView> {
               right: 24,
               bottom: 8,
             ),
-            child: SizedBox(
-              height: 60,
-              child: TextField(
-                controller: _email,
-                keyboardType: TextInputType.emailAddress,
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    prefixIconColor: MaterialStateColor.resolveWith(
-                        (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.focused)) {
-                        return Colors.blue;
-                      }
-                      if (states.contains(MaterialState.error)) {
-                        return Colors.red;
-                      }
-                      return Colors.grey.shade800;
-                    }),
-                    hintText: "Enter your email",
-                    border: const OutlineInputBorder(),
-                    labelText: 'Email'),
-              ),
+            child: TextField(
+              controller: _email,
+              keyboardType: TextInputType.emailAddress,
+              enableSuggestions: false,
+              autocorrect: false,
+              decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  prefixIconColor: MaterialStateColor.resolveWith(
+                      (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.focused)) {
+                      return Theme.of(context).colorScheme.primary;
+                    }
+                    if (states.contains(MaterialState.error)) {
+                      return Theme.of(context).colorScheme.error;
+                    }
+                    return Theme.of(context).colorScheme.onSurface;
+                  }),
+                  hintText: "Enter your email",
+                  border: const OutlineInputBorder(),
+                  labelText: 'Email'),
             ),
           ),
           Padding(
@@ -73,29 +79,26 @@ class _LoginViewState extends State<LoginView> {
               right: 24,
               bottom: 8,
             ),
-            child: SizedBox(
-              height: 60,
-              child: TextFormField(
-                controller: _password,
-                obscureText: true,
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.password_outlined),
-                    prefixIconColor: MaterialStateColor.resolveWith(
-                        (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.focused)) {
-                        return Colors.blue;
-                      }
-                      if (states.contains(MaterialState.error)) {
-                        return Colors.red;
-                      }
-                      return Colors.grey.shade800;
-                    }),
-                    hintText: "Enter your password",
-                    border: const OutlineInputBorder(),
-                    labelText: 'Password'),
-              ),
+            child: TextFormField(
+              controller: _password,
+              obscureText: true,
+              enableSuggestions: false,
+              autocorrect: false,
+              decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.password_outlined),
+                  prefixIconColor: MaterialStateColor.resolveWith(
+                      (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.focused)) {
+                      return Theme.of(context).colorScheme.primary;
+                    }
+                    if (states.contains(MaterialState.error)) {
+                      return Theme.of(context).colorScheme.error;
+                    }
+                    return Theme.of(context).colorScheme.onSurface;
+                  }),
+                  hintText: "Enter your password",
+                  border: const OutlineInputBorder(),
+                  labelText: 'Password'),
             ),
           ),
           TextButton(
@@ -145,6 +148,9 @@ class _LoginViewState extends State<LoginView> {
                 );
               }
             },
+            style: ButtonStyle(
+                backgroundColor: MaterialStatePropertyAll(
+                    Theme.of(context).colorScheme.primaryContainer)),
             child: const Text("Login"),
           ),
           TextButton(

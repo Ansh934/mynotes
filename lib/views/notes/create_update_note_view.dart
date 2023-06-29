@@ -62,10 +62,11 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
 
   void _textControllerListener() async {
     final note = _note;
-    if (note == null) {
+    final text = _textController.text;
+    if (note == null || text == '') {
+      //why to update empty notes
       return;
     }
-    final text = _textController.text;
     await _notesService.updateNote(
       note: note,
       text: text,

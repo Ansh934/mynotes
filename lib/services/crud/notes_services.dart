@@ -176,7 +176,8 @@ class NotesService {
     );
 
     _notes.add(note);
-    _notesStreamController.add(_notes);
+
+    // _notesStreamController.add(_notes); //why to give an empty note to stream
 
     return note;
   }

@@ -86,17 +86,26 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
     super.dispose();
   }
 
+  int appTitleBar(BuildContext context) {
+    final note = context.getArgument<DatabaseNote>();
+    if (note == null) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text(
-            style: TextStyle(
+        title: Text(
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
-            "New Note"),
+            ["New Note", "Edit Note"][appTitleBar(context)]),
       ),
       body: FutureBuilder(
         future: createOrGetExistingNote(context),

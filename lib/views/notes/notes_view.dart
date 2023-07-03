@@ -16,12 +16,15 @@ class NotesView extends StatefulWidget {
 class _NotesViewState extends State<NotesView> {
   late final NotesService _notesService;
   String get userEmail => AuthService.firebase().currentUser!.email!;
+  int currentPageIndex = 0;
+  Future<DatabaseUser>? _futureUser;
 
   @override
   void initState() {
     _notesService = NotesService();
     _notesService.open();
     super.initState();
+    _futureUser = _notesService.getOrCreateUser(email: userEmail);
   }
 
   @override
@@ -30,19 +33,24 @@ class _NotesViewState extends State<NotesView> {
       appBar: AppBar(
         toolbarHeight: 100,
         centerTitle: true,
-        title: const Text(
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-            "Your Notes"),
+        title: const Row(
+          children: [
+            Image(image: ExactAssetImage('asset/icons/my_notes.png', scale: 5)),
+            Text(
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+                " MyNotes"),
+          ],
+        ),
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(createOrUpdateNoteRoute);
-            },
-            icon: const Icon(Icons.add),
-          ),
+          // IconButton(
+          //   onPressed: () {
+          //     Navigator.of(context).pushNamed(createOrUpdateNoteRoute);
+          //   },
+          //   icon: const Icon(Icons.add),
+          // ),
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
               switch (value) {
@@ -58,62 +66,137 @@ class _NotesViewState extends State<NotesView> {
                     }
                   }
                   break;
-                case MenuAction.settings:
-                  break;
               }
             },
             itemBuilder: (context) {
               return const [
                 PopupMenuItem<MenuAction>(
                   value: MenuAction.logout,
-                  child: Text("Log out"),
-                ),
-                PopupMenuItem<MenuAction>(
-                  value: MenuAction.settings,
-                  child: Text("Settings"),
+                  child: Row(
+                    children: [
+                      Icon(Icons.logout_outlined),
+                      Text("Log out"),
+                    ],
+                  ),
                 ),
               ];
             },
           )
         ],
       ),
-      body: FutureBuilder(
-        future: _notesService.getOrCreateUser(email: userEmail),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return StreamBuilder(
-                stream: _notesService.allNotes,
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                    case ConnectionState.active:
-                      if (snapshot.hasData) {
-                        final allNotes = snapshot.data as List<DatabaseNote>;
-                        return NotesListView(
-                          notes: allNotes.reversed.toList(),
-                          onDeleteNote: (note) async {
-                            await _notesService.deleteNote(id: note.id);
-                          },
-                          onTap: (note) {
-                            Navigator.of(context).pushNamed(
-                              createOrUpdateNoteRoute,
-                              arguments: note,
+      body: <Widget?>[
+        FutureBuilder(
+          future: _futureUser,
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                return StreamBuilder(
+                  stream: _notesService.allNotes,
+                  builder: (context, snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                      case ConnectionState.active:
+                        if (snapshot.hasData) {
+                          final allNotes = snapshot.data as List<DatabaseNote>;
+                          if (allNotes.isEmpty) {
+                            return Scaffold(
+                              floatingActionButton:
+                                  FloatingActionButton.extended(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pushNamed(createOrUpdateNoteRoute);
+                                },
+                                icon: const Icon(Icons.add_outlined),
+                                label: const Text(
+                                  "Create your first note",
+                                  // style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                              body: const Icon(
+                                Icons.notes_rounded,
+                                size: 200,
+                              ),
                             );
-                          },
-                        );
-                      } else {
+                          } else {
+                            return Scaffold(
+                              appBar: AppBar(
+                                centerTitle: false,
+                                title: Text(
+                                    style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary),
+                                    "Your Notes"),
+                              ),
+                              body: NotesListView(
+                                notes: allNotes.reversed.toList(),
+                                onDeleteNote: (note) async {
+                                  await _notesService.deleteNote(id: note.id);
+                                },
+                                onTap: (note) {
+                                  Navigator.of(context).pushNamed(
+                                    createOrUpdateNoteRoute,
+                                    arguments: note,
+                                  );
+                                },
+                              ),
+                              floatingActionButton: FloatingActionButton(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pushNamed(createOrUpdateNoteRoute);
+                                },
+                                child: const Icon(Icons.add_outlined),
+                              ),
+                            );
+                          }
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      default:
                         return const Center(child: CircularProgressIndicator());
-                      }
-                    default:
-                      return const Center(child: CircularProgressIndicator());
-                  }
-                },
-              );
-            default:
-              return const Center(child: CircularProgressIndicator());
-          }
+                    }
+                  },
+                );
+              default:
+                return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
+        Scaffold(
+          appBar: AppBar(
+            centerTitle: false,
+            title: Text(
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary),
+                "Settings"),
+          ),
+          body: const Center(child: Text('Implementation Soon...')),
+        )
+      ][currentPageIndex],
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
         },
+        selectedIndex: currentPageIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
+            selectedIcon: Icon(Icons.sticky_note_2),
+            icon: Icon(Icons.sticky_note_2_outlined),
+            label: 'Notes',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
+            label: 'Settings',
+          ),
+        ],
       ),
     );
   }

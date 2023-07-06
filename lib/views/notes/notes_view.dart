@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/enums/menu_actions.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
-import 'package:mynotes/services/crud/notes_services.dart';
+import 'package:mynotes/services/cloud/cloud_note.dart';
+import 'package:mynotes/services/cloud/firebase_cloud_storage.dart';
 import 'package:mynotes/utilities/dialogs/show_logout_dialog.dart';
 import 'package:mynotes/views/notes/notes_list_view.dart';
 
@@ -14,17 +15,14 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
-  late final NotesService _notesService;
-  String get userEmail => AuthService.firebase().currentUser!.email;
+  String get userId => AuthService.firebase().currentUser!.id;
+  late final FirebaseCloudStorage _notesService;
   int currentPageIndex = 0;
-  Future<DatabaseUser>? _futureUser;
 
   @override
   void initState() {
-    _notesService = NotesService();
-    _notesService.open();
+    _notesService = FirebaseCloudStorage();
     super.initState();
-    _futureUser = _notesService.getOrCreateUser(email: userEmail);
   }
 
   @override
@@ -85,81 +83,67 @@ class _NotesViewState extends State<NotesView> {
         ],
       ),
       body: <Widget?>[
-        FutureBuilder(
-          future: _futureUser,
+        StreamBuilder(
+          stream: _notesService.allNotes(ownerUserId: userId),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                return StreamBuilder(
-                  stream: _notesService.allNotes,
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                      case ConnectionState.active:
-                        if (snapshot.hasData) {
-                          final allNotes = snapshot.data as List<DatabaseNote>;
-                          if (allNotes.isEmpty) {
-                            return Scaffold(
-                              floatingActionButton:
-                                  FloatingActionButton.extended(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pushNamed(createOrUpdateNoteRoute);
-                                },
-                                icon: const Icon(Icons.add_outlined),
-                                label: const Text(
-                                  "Create your first note",
-                                  // style: TextStyle(fontSize: 20),
-                                ),
-                              ),
-                              body: const Icon(
-                                Icons.notes_rounded,
-                                size: 200,
-                              ),
-                            );
-                          } else {
-                            return Scaffold(
-                              appBar: AppBar(
-                                centerTitle: false,
-                                title: Text(
-                                    style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary),
-                                    "Your Notes"),
-                              ),
-                              body: NotesListView(
-                                notes: allNotes.reversed.toList(),
-                                onDeleteNote: (note) async {
-                                  await _notesService.deleteNote(id: note.id);
-                                },
-                                onTap: (note) {
-                                  Navigator.of(context).pushNamed(
-                                    createOrUpdateNoteRoute,
-                                    arguments: note,
-                                  );
-                                },
-                              ),
-                              floatingActionButton: FloatingActionButton(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pushNamed(createOrUpdateNoteRoute);
-                                },
-                                child: const Icon(Icons.add_outlined),
-                              ),
-                            );
-                          }
-                        } else {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                      default:
-                        return const Center(child: CircularProgressIndicator());
-                    }
-                  },
-                );
+              case ConnectionState.waiting:
+              case ConnectionState.active:
+                if (snapshot.hasData) {
+                  final allNotes = snapshot.data as Iterable<CloudNote>;
+                  if (allNotes.isEmpty) {
+                    return Scaffold(
+                      floatingActionButton: FloatingActionButton.extended(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pushNamed(createOrUpdateNoteRoute);
+                        },
+                        icon: const Icon(Icons.add_outlined),
+                        label: const Text(
+                          "Create your first note",
+                        ),
+                      ),
+                      body: const Icon(
+                        Icons.notes_rounded,
+                        size: 200,
+                      ),
+                    );
+                  } else {
+                    return Scaffold(
+                      appBar: AppBar(
+                        centerTitle: false,
+                        title: Text(
+                            style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary),
+                            "Your Notes"),
+                      ),
+                      body: NotesListView(
+                        notes: allNotes,
+                        onDeleteNote: (note) async {
+                          await _notesService.deleteNote(
+                              documentId: note.documentId);
+                        },
+                        onTap: (note) {
+                          Navigator.of(context).pushNamed(
+                            createOrUpdateNoteRoute,
+                            arguments: note,
+                          );
+                        },
+                      ),
+                      floatingActionButton: FloatingActionButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pushNamed(createOrUpdateNoteRoute);
+                        },
+                        child: const Icon(Icons.add_outlined),
+                      ),
+                    );
+                  }
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
               default:
                 return const Center(child: CircularProgressIndicator());
             }

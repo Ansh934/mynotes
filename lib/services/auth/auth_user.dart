@@ -12,11 +12,17 @@ class AuthUser {
     required this.email,
     required this.isEmailVerified,
   });
-  factory AuthUser.fromFirebase(User user) {
-    return AuthUser(
-      id: user.uid,
-      email: user.email!,
-      isEmailVerified: user.emailVerified,
-    );
-  }
+  // factory AuthUser.fromFirebase(User user) {
+  //   return AuthUser(
+  //     id: user.uid,
+  //     email: user.email!,
+  //     isEmailVerified: user.emailVerified,
+  //   );
+  // }
+
+  //my own constructor
+  AuthUser.fromFirebase(User user)
+      : id = user.uid,
+        email = user.email!,
+        isEmailVerified = user.emailVerified;
 }

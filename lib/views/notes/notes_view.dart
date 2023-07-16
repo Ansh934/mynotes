@@ -120,7 +120,7 @@ class _NotesViewState extends State<NotesView> {
                             "Your Notes"),
                       ),
                       body: NotesListView(
-                        notes: allNotes,
+                        notes: allNotes.where((note) => note.text.isNotEmpty),
                         onDeleteNote: (note) async {
                           await _notesService.deleteNote(
                               documentId: note.documentId);

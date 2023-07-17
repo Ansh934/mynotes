@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/services/auth/auth_exceptions.dart';
 import 'package:mynotes/services/auth/bloc/auth_bloc.dart';
 import 'package:mynotes/services/auth/bloc/auth_event.dart';
 import 'package:mynotes/services/auth/bloc/auth_state.dart';
 import 'package:mynotes/utilities/dialogs/show_error_dialog.dart';
+import 'package:mynotes/utilities/dialogs/show_loading_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -17,6 +17,7 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
+  CloseDialog? _closeDialogHandle;
 
   @override
   void initState() {
@@ -34,89 +35,101 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 140,
-        centerTitle: true,
-        title: const Text(
-            style: TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) async {
+        if (state is AuthStateLoggedOut) {
+          final closeDialog = _closeDialogHandle;
+
+          if (!state.isLoading && closeDialog != null) {
+            closeDialog();
+            _closeDialogHandle = null;
+          } else if (state.isLoading && closeDialog == null) {
+            _closeDialogHandle = showLoadingdialog(
+              context: context,
+              text: "Loading...",
+            );
+          }
+
+          if (state.exception is UserNotFoundAuthException) {
+            await showErrorDialog(context, "User not found");
+          } else if (state.exception is WrongPasswordAuthException) {
+            await showErrorDialog(context, 'Wrong credentials');
+          } else if (state.exception is GenericAuthException) {
+            await showErrorDialog(context, 'Authentication error');
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 140,
+          centerTitle: true,
+          title: const Text(
+              style: TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.bold,
+              ),
+              "Login"),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 32,
+                left: 24,
+                right: 24,
+                bottom: 8,
+              ),
+              child: TextField(
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    prefixIconColor: MaterialStateColor.resolveWith(
+                        (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.focused)) {
+                        return Theme.of(context).colorScheme.primary;
+                      }
+                      if (states.contains(MaterialState.error)) {
+                        return Theme.of(context).colorScheme.error;
+                      }
+                      return Theme.of(context).colorScheme.onSurface;
+                    }),
+                    hintText: "Enter your email",
+                    border: const OutlineInputBorder(),
+                    labelText: 'Email'),
+              ),
             ),
-            "Login"),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 32,
-              left: 24,
-              right: 24,
-              bottom: 8,
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 24,
+                right: 24,
+                bottom: 8,
+              ),
+              child: TextFormField(
+                controller: _password,
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.password_outlined),
+                    prefixIconColor: MaterialStateColor.resolveWith(
+                        (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.focused)) {
+                        return Theme.of(context).colorScheme.primary;
+                      }
+                      if (states.contains(MaterialState.error)) {
+                        return Theme.of(context).colorScheme.error;
+                      }
+                      return Theme.of(context).colorScheme.onSurface;
+                    }),
+                    hintText: "Enter your password",
+                    border: const OutlineInputBorder(),
+                    labelText: 'Password'),
+              ),
             ),
-            child: TextField(
-              controller: _email,
-              keyboardType: TextInputType.emailAddress,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  prefixIconColor: MaterialStateColor.resolveWith(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.focused)) {
-                      return Theme.of(context).colorScheme.primary;
-                    }
-                    if (states.contains(MaterialState.error)) {
-                      return Theme.of(context).colorScheme.error;
-                    }
-                    return Theme.of(context).colorScheme.onSurface;
-                  }),
-                  hintText: "Enter your email",
-                  border: const OutlineInputBorder(),
-                  labelText: 'Email'),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 24,
-              right: 24,
-              bottom: 8,
-            ),
-            child: TextFormField(
-              controller: _password,
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.password_outlined),
-                  prefixIconColor: MaterialStateColor.resolveWith(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.focused)) {
-                      return Theme.of(context).colorScheme.primary;
-                    }
-                    if (states.contains(MaterialState.error)) {
-                      return Theme.of(context).colorScheme.error;
-                    }
-                    return Theme.of(context).colorScheme.onSurface;
-                  }),
-                  hintText: "Enter your password",
-                  border: const OutlineInputBorder(),
-                  labelText: 'Password'),
-            ),
-          ),
-          BlocListener<AuthBloc, AuthState>(
-            listener: (context, state) async {
-              if (state is AuthStateLoggedOut) {
-                if (state.exception is UserNotFoundAuthException) {
-                  await showErrorDialog(context, "User not found");
-                } else if (state.exception is WrongPasswordAuthException) {
-                  await showErrorDialog(context, 'Wrong credentials');
-                } else {
-                  await showErrorDialog(context, 'Authentication error');
-                }
-              }
-            },
-            child: TextButton(
+            TextButton(
               onPressed: () async {
                 final email = _email.text;
                 final password = _password.text;
@@ -126,21 +139,19 @@ class _LoginViewState extends State<LoginView> {
                     ));
               },
               style: ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                      Theme.of(context).colorScheme.primaryContainer)),
+                backgroundColor: MaterialStatePropertyAll(
+                    Theme.of(context).colorScheme.primaryContainer),
+              ),
               child: const Text("Login"),
             ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                registerRoute,
-                (route) => false,
-              );
-            },
-            child: const Text("Not registered yet? Click here"),
-          )
-        ],
+            TextButton(
+              onPressed: () {
+                context.read<AuthBloc>().add(const AuthEventShouldRegister());
+              },
+              child: const Text("Not registered yet? Click here"),
+            )
+          ],
+        ),
       ),
     );
   }

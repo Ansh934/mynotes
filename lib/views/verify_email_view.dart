@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mynotes/constants/routes.dart';
-import 'package:mynotes/services/auth/auth_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mynotes/services/auth/bloc/auth_bloc.dart';
+import 'package:mynotes/services/auth/bloc/auth_event.dart';
 import 'package:mynotes/utilities/dialogs/show_logout_dialog.dart';
 
 class VerifyEmailView extends StatefulWidget {
@@ -43,8 +44,10 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
             ),
           ),
           TextButton(
-            onPressed: () async {
-              await AuthService.firebase().sendEmailVerification();
+            onPressed: () {
+              context
+                  .read<AuthBloc>()
+                  .add(const AuthEventSendEmailverification());
             },
             style: ButtonStyle(
                 backgroundColor: MaterialStatePropertyAll(
@@ -52,17 +55,8 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
             child: const Text("Send verification email"),
           ),
           TextButton(
-            onPressed: () async {
-              await AuthService.firebase().reload();
-              if (AuthService.firebase().currentUser?.isEmailVerified ??
-                  false) {
-                if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    notesRoute,
-                    (route) => false,
-                  );
-                }
-              }
+            onPressed: () {
+              context.read<AuthBloc>().add(const AuthEventReload());
             },
             child: const Text("Refresh"),
           ),
@@ -70,12 +64,8 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
             onPressed: () async {
               final shouldLogout = await showLogOutDialog(context);
               if (shouldLogout) {
-                await AuthService.firebase().logOut();
                 if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    loginRoute,
-                    (_) => false,
-                  );
+                  context.read<AuthBloc>().add(const AuthEventLogOut());
                 }
               }
             },

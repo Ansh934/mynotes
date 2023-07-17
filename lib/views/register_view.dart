@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mynotes/constants/routes.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mynotes/services/auth/auth_exceptions.dart';
-import 'package:mynotes/services/auth/auth_service.dart';
+import 'package:mynotes/services/auth/bloc/auth_bloc.dart';
+import 'package:mynotes/services/auth/bloc/auth_event.dart';
+import 'package:mynotes/services/auth/bloc/auth_state.dart';
 import 'package:mynotes/utilities/dialogs/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
@@ -31,130 +33,114 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 140,
-        centerTitle: true,
-        title: const Text(
-            style: TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) async {
+        if (state is AuthStateRegistering) {
+          if (state.exception is WeakPasswordAuthException) {
+            await showErrorDialog(context, "Password must be 8 keywords long");
+          } else if (state.exception is EmailAlreadyInUseAuthException) {
+            await showErrorDialog(context, "Email is already in use ");
+          } else if (state.exception is InvalidEmailAuthException) {
+            await showErrorDialog(context, "Invalid email");
+          } else if (state.exception is GenericAuthException) {
+            await showErrorDialog(context, "Authentication Error");
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 140,
+          centerTitle: true,
+          title: const Text(
+              style: TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.bold,
+              ),
+              "Register"),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 32,
+                left: 24,
+                right: 24,
+                bottom: 8,
+              ),
+              child: TextField(
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    prefixIconColor: MaterialStateColor.resolveWith(
+                        (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.focused)) {
+                        return Theme.of(context).colorScheme.primary;
+                      }
+                      if (states.contains(MaterialState.error)) {
+                        return Theme.of(context).colorScheme.error;
+                      }
+                      return Theme.of(context).colorScheme.onSurface;
+                    }),
+                    hintText: "Enter your email",
+                    border: const OutlineInputBorder(),
+                    labelText: 'Email'),
+              ),
             ),
-            "Register"),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 32,
-              left: 24,
-              right: 24,
-              bottom: 8,
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 24,
+                right: 24,
+                bottom: 8,
+              ),
+              child: TextFormField(
+                controller: _password,
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.password_outlined),
+                    prefixIconColor: MaterialStateColor.resolveWith(
+                        (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.focused)) {
+                        return Theme.of(context).colorScheme.primary;
+                      }
+                      if (states.contains(MaterialState.error)) {
+                        return Theme.of(context).colorScheme.error;
+                      }
+                      return Theme.of(context).colorScheme.onSurface;
+                    }),
+                    hintText: "Enter your password",
+                    border: const OutlineInputBorder(),
+                    labelText: 'Password'),
+              ),
             ),
-            child: TextField(
-              controller: _email,
-              keyboardType: TextInputType.emailAddress,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  prefixIconColor: MaterialStateColor.resolveWith(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.focused)) {
-                      return Theme.of(context).colorScheme.primary;
-                    }
-                    if (states.contains(MaterialState.error)) {
-                      return Theme.of(context).colorScheme.error;
-                    }
-                    return Theme.of(context).colorScheme.onSurface;
-                  }),
-                  hintText: "Enter your email",
-                  border: const OutlineInputBorder(),
-                  labelText: 'Email'),
+            TextButton(
+              onPressed: () async {
+                final email = _email.text;
+                final password = _password.text;
+                context.read<AuthBloc>().add(
+                      AuthEventRegister(
+                        email,
+                        password,
+                      ),
+                    );
+              },
+              style: ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(
+                      Theme.of(context).colorScheme.primaryContainer)),
+              child: const Text("Register"),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 24,
-              right: 24,
-              bottom: 8,
-            ),
-            child: TextFormField(
-              controller: _password,
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.password_outlined),
-                  prefixIconColor: MaterialStateColor.resolveWith(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.focused)) {
-                      return Theme.of(context).colorScheme.primary;
-                    }
-                    if (states.contains(MaterialState.error)) {
-                      return Theme.of(context).colorScheme.error;
-                    }
-                    return Theme.of(context).colorScheme.onSurface;
-                  }),
-                  hintText: "Enter your password",
-                  border: const OutlineInputBorder(),
-                  labelText: 'Password'),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              final email = _email.text;
-              final password = _password.text;
-              try {
-                await AuthService.firebase().createUser(
-                  email: email,
-                  password: password,
-                );
-                await AuthService.firebase().logIn(
-                  email: email,
-                  password: password,
-                );
-                await AuthService.firebase().sendEmailVerification();
-                if (context.mounted) {
-                  Navigator.of(context).popAndPushNamed(verifyEmailRoute);
-                }
-              } on WeakPasswordAuthException {
-                await showErrorDialog(
-                  context,
-                  "Password must be 8 keywords long",
-                );
-              } on EmailAlreadyInUseAuthException {
-                await showErrorDialog(
-                  context,
-                  "Email is already in use ",
-                );
-              } on InvalidEmailAuthException {
-                await showErrorDialog(
-                  context,
-                  "Invalid email",
-                );
-              } on GenericAuthException {
-                await showErrorDialog(
-                  context,
-                  "Authentication Error",
-                );
-              }
-            },
-            style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(
-                    Theme.of(context).colorScheme.primaryContainer)),
-            child: const Text("Register"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                loginRoute,
-                (route) => false,
-              );
-            },
-            child: const Text("Already registered? Login here"),
-          )
-        ],
+            TextButton(
+              onPressed: () {
+                context.read<AuthBloc>().add(const AuthEventLogOut());
+              },
+              child: const Text("Already registered? Login here"),
+            )
+          ],
+        ),
       ),
     );
   }

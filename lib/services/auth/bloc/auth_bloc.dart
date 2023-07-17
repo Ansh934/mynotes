@@ -5,12 +5,17 @@ import 'package:mynotes/services/auth/bloc/auth_state.dart';
 import 'package:mynotes/services/auth/firebase_auth_provider.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc(AuthProvider provider) : super(const AuthStateLoading()) {
+  AuthBloc.fromFirebase() : this(FirebaseAuthProvider());
+  AuthBloc(AuthProvider provider) : super(const AuthStateUninitialised()) {
+    // initialise
     on<AuthEventInitialise>((event, emit) async {
       await provider.initialise();
       final user = provider.currentUser;
       if (user == null) {
-        emit(const AuthStateLoggedOut(null));
+        emit(const AuthStateLoggedOut(
+          exception: null,
+          isLoading: false,
+        ));
       } else if (!user.isEmailVerified) {
         emit(const AuthStateNeedsVerification());
       } else {
@@ -19,6 +24,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
     // log in
     on<AuthEventLogIn>((event, emit) async {
+      emit(const AuthStateLoggedOut(
+        exception: null,
+        isLoading: true,
+      ));
       final email = event.email;
       final password = event.password;
       try {
@@ -27,22 +36,78 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           password: password,
         );
         if (user != null) {
-          emit(AuthStateLoggedIn(user));
+          emit(const AuthStateLoggedOut(
+            exception: null,
+            isLoading: false,
+          ));
+          if (user.isEmailVerified) {
+            emit(AuthStateLoggedIn(user));
+          } else if (!user.isEmailVerified) {
+            emit(const AuthStateNeedsVerification());
+          }
         }
       } on Exception catch (e) {
-        emit(AuthStateLoggedOut(e));
+        emit(AuthStateLoggedOut(
+          exception: e,
+          isLoading: false,
+        ));
       }
     });
     // log out
     on<AuthEventLogOut>((event, emit) async {
       try {
-        emit(const AuthStateLoading());
         await provider.logOut();
-        emit(const AuthStateLoggedOut(null));
+        emit(const AuthStateLoggedOut(
+          exception: null,
+          isLoading: false,
+        ));
       } on Exception catch (e) {
-        emit(AuthStateLogoutFailure(e));
+        emit(AuthStateLoggedOut(
+          exception: e,
+          isLoading: false,
+        ));
       }
     });
+    // goto register
+    on<AuthEventShouldRegister>(
+      (event, emit) {
+        emit(const AuthStateShouldRegister());
+      },
+    );
+    // register
+    on<AuthEventRegister>(
+      (event, emit) async {
+        final email = event.email;
+        final password = event.password;
+        try {
+          await provider.createUser(email: email, password: password);
+          await provider.sendEmailVerification();
+          emit(const AuthStateNeedsVerification());
+        } on Exception catch (e) {
+          emit(AuthStateRegistering(e));
+        }
+      },
+    );
+    // send email verification
+    on<AuthEventSendEmailverification>(
+      (event, emit) async {
+        await provider.sendEmailVerification();
+        emit(state);
+      },
+    );
+    // reload
+    on<AuthEventReload>(
+      (event, emit) async {
+        await provider.reload();
+        final user = provider.currentUser;
+        if (user != null) {
+          if (user.isEmailVerified) {
+            emit(AuthStateLoggedIn(user));
+          } else if (!user.isEmailVerified) {
+            emit(state);
+          }
+        }
+      },
+    );
   }
-  AuthBloc.fromFirebase() : this(FirebaseAuthProvider());
 }

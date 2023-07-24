@@ -5,7 +5,6 @@ import 'package:mynotes/services/auth/bloc/auth_bloc.dart';
 import 'package:mynotes/services/auth/bloc/auth_event.dart';
 import 'package:mynotes/services/auth/bloc/auth_state.dart';
 import 'package:mynotes/utilities/dialogs/show_error_dialog.dart';
-import 'package:mynotes/utilities/dialogs/show_loading_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -17,7 +16,6 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-  CloseDialog? _closeDialogHandle;
 
   @override
   void initState() {
@@ -38,24 +36,31 @@ class _LoginViewState extends State<LoginView> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
         if (state is AuthStateLoggedOut) {
-          final closeDialog = _closeDialogHandle;
-
-          if (!state.isLoading && closeDialog != null) {
-            closeDialog();
-            _closeDialogHandle = null;
-          } else if (state.isLoading && closeDialog == null) {
-            _closeDialogHandle = showLoadingdialog(
-              context: context,
-              text: "Loading...",
+          if (state.exception is InvalidEmailAuthException) {
+            await showErrorDialog(
+              context,
+              "The email address is not valid",
             );
-          }
-
-          if (state.exception is UserNotFoundAuthException) {
-            await showErrorDialog(context, "User not found");
+          } else if (state.exception is UserDisabledAuthException) {
+            await showErrorDialog(
+              context,
+              "The user corresponding to the given email has been disabled",
+            );
+          } else if (state.exception is UserNotFoundAuthException) {
+            await showErrorDialog(
+              context,
+              "There is no user corresponding to the given email",
+            );
           } else if (state.exception is WrongPasswordAuthException) {
-            await showErrorDialog(context, 'Wrong credentials');
+            await showErrorDialog(
+              context,
+              'The password is invalid for the given email, or the account corresponding to the email does not have a password set',
+            );
           } else if (state.exception is GenericAuthException) {
-            await showErrorDialog(context, 'Authentication error');
+            await showErrorDialog(
+              context,
+              'Authentication error',
+            );
           }
         }
       },

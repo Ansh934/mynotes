@@ -35,15 +35,32 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
-        if (state is AuthStateRegistering) {
-          if (state.exception is WeakPasswordAuthException) {
-            await showErrorDialog(context, "Password must be 8 keywords long");
-          } else if (state.exception is EmailAlreadyInUseAuthException) {
-            await showErrorDialog(context, "Email is already in use ");
+        if (state is AuthStateShouldRegister) {
+          if (state.exception is EmailAlreadyInUseAuthException) {
+            await showErrorDialog(
+              context,
+              "There already exists an account with the given email address",
+            );
           } else if (state.exception is InvalidEmailAuthException) {
-            await showErrorDialog(context, "Invalid email");
+            await showErrorDialog(
+              context,
+              "The email address is not valid",
+            );
+          } else if (state.exception is OperationNotAllowedAuthException) {
+            await showErrorDialog(
+              context,
+              "email/password accounts are not enabled",
+            );
+          } else if (state.exception is WeakPasswordAuthException) {
+            await showErrorDialog(
+              context,
+              "The password is not strong enough",
+            );
           } else if (state.exception is GenericAuthException) {
-            await showErrorDialog(context, "Authentication Error");
+            await showErrorDialog(
+              context,
+              "Authentication Error",
+            );
           }
         }
       },

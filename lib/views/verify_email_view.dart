@@ -28,7 +28,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: 120,
+          toolbarHeight: 140,
           centerTitle: true,
           title: const Text(
               style: TextStyle(
@@ -37,56 +37,50 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               ),
               "Verification"),
         ),
-        body: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            children: [
+              const Text(
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
                 "We've sent you an verification email, please open it in order to verify your email.",
               ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
+              const Text(
                 "If you haven't received an verification email yet, press the button below  ",
               ),
-            ),
-            TextButton(
-              onPressed: () {
-                context
-                    .read<AuthBloc>()
-                    .add(const AuthEventSendEmailverification());
-              },
-              style: ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                      Theme.of(context).colorScheme.primaryContainer)),
-              child: const Text("Send verification email"),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add(const AuthEventReload());
-              },
-              child: const Text("Refresh"),
-            ),
-            TextButton(
-              onPressed: () async {
-                final shouldLogout = await showLogOutDialog(context);
-                if (shouldLogout) {
-                  if (context.mounted) {
-                    context.read<AuthBloc>().add(const AuthEventLogOut());
+              const SizedBox(
+                height: 16.0,
+              ),
+              FilledButton.tonal(
+                onPressed: () {
+                  context
+                      .read<AuthBloc>()
+                      .add(const AuthEventSendEmailverification());
+                },
+                child: const Text("Send verification email"),
+              ),
+              FilledButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventReload());
+                },
+                child: const Text("Refresh"),
+              ),
+              OutlinedButton(
+                onPressed: () async {
+                  final shouldLogout = await showLogOutDialog(context);
+                  if (shouldLogout) {
+                    if (context.mounted) {
+                      context.read<AuthBloc>().add(const AuthEventLogOut());
+                    }
                   }
-                }
-              },
-              style: ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                      Theme.of(context).colorScheme.errorContainer)),
-              child: const Text("Log Out"),
-            ),
-          ],
+                },
+                child: const Text("Log Out"),
+              ),
+            ],
+          ),
         ),
       ),
     );

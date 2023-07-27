@@ -23,17 +23,17 @@ class LoadingScreen {
     final overlay = OverlayEntry(
       builder: (context) {
         return Material(
-          color: Colors.black.withAlpha(150),
+          color: Theme.of(context).colorScheme.scrim.withAlpha(150),
           child: Center(
             child: Container(
               constraints: BoxConstraints(
-                maxWidth: size.width * 0.8,
+                maxWidth: 560,
                 maxHeight: size.height * 0.8,
-                minWidth: size.width * 0.5,
+                minWidth: 280,
               ),
               decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25.0)),
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  borderRadius: BorderRadius.circular(28.0)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SingleChildScrollView(

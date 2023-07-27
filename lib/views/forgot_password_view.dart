@@ -61,24 +61,44 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
           title: const Text(
             'Forgot Password',
             style: TextStyle(
-              fontSize: 48,
+              fontSize: 40,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(children: [
             const Text(
                 'If you forgot your password, simply enter your email and we will send you a password reset link'),
+            const SizedBox(
+              height: 16.0,
+            ),
             TextField(
               keyboardType: TextInputType.emailAddress,
               autocorrect: false,
-              autofocus: true,
+              enableSuggestions: false,
               controller: _controller,
-              decoration: const InputDecoration(hintText: 'email address'),
+              decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  prefixIconColor: MaterialStateColor.resolveWith(
+                      (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.focused)) {
+                      return Theme.of(context).colorScheme.primary;
+                    }
+                    if (states.contains(MaterialState.error)) {
+                      return Theme.of(context).colorScheme.error;
+                    }
+                    return Theme.of(context).colorScheme.onSurface;
+                  }),
+                  hintText: "Enter your email",
+                  border: const OutlineInputBorder(),
+                  labelText: 'Email'),
             ),
-            TextButton(
+            const SizedBox(
+              height: 8.0,
+            ),
+            FilledButton(
                 onPressed: () {
                   final email = _controller.text;
                   context
@@ -86,7 +106,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                       .add(AuthEventForgotPassword(email: email));
                 },
                 child: const Text('Send')),
-            TextButton(
+            FilledButton.tonal(
                 onPressed: () {
                   context.read<AuthBloc>().add(const AuthEventLogOut());
                 },

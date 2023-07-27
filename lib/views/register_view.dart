@@ -70,21 +70,19 @@ class _RegisterViewState extends State<RegisterView> {
           centerTitle: true,
           title: const Text(
               style: TextStyle(
-                fontSize: 48,
+                fontSize: 40,
                 fontWeight: FontWeight.bold,
               ),
               "Register"),
         ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 32,
-                left: 24,
-                right: 24,
-                bottom: 8,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 8.0,
               ),
-              child: TextField(
+              TextField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 enableSuggestions: false,
@@ -105,14 +103,10 @@ class _RegisterViewState extends State<RegisterView> {
                     border: const OutlineInputBorder(),
                     labelText: 'Email'),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 24,
-                right: 24,
-                bottom: 8,
+              const SizedBox(
+                height: 8.0,
               ),
-              child: TextFormField(
+              TextField(
                 controller: _password,
                 obscureText: true,
                 enableSuggestions: false,
@@ -133,30 +127,30 @@ class _RegisterViewState extends State<RegisterView> {
                     border: const OutlineInputBorder(),
                     labelText: 'Password'),
               ),
-            ),
-            TextButton(
-              onPressed: () async {
-                final email = _email.text;
-                final password = _password.text;
-                context.read<AuthBloc>().add(
-                      AuthEventRegister(
-                        email,
-                        password,
-                      ),
-                    );
-              },
-              style: ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                      Theme.of(context).colorScheme.primaryContainer)),
-              child: const Text("Register"),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add(const AuthEventLogOut());
-              },
-              child: const Text("Already registered? Login here"),
-            )
-          ],
+              const SizedBox(
+                height: 8.0,
+              ),
+              FilledButton(
+                onPressed: () async {
+                  final email = _email.text;
+                  final password = _password.text;
+                  context.read<AuthBloc>().add(
+                        AuthEventRegister(
+                          email,
+                          password,
+                        ),
+                      );
+                },
+                child: const Text("Register"),
+              ),
+              OutlinedButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventLogOut());
+                },
+                child: const Text("Goto Login"),
+              )
+            ],
+          ),
         ),
       ),
     );

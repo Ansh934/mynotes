@@ -70,17 +70,19 @@ class _LoginViewState extends State<LoginView> {
           centerTitle: true,
           title: const Text(
             style: TextStyle(
-              fontSize: 48,
+              fontSize: 40,
               fontWeight: FontWeight.bold,
             ),
             "Login",
           ),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
-            // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(
+                height: 8.0,
+              ),
               TextField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
@@ -101,6 +103,9 @@ class _LoginViewState extends State<LoginView> {
                     hintText: "Enter your email",
                     border: const OutlineInputBorder(),
                     labelText: 'Email'),
+              ),
+              const SizedBox(
+                height: 8.0,
               ),
               TextField(
                 controller: _password,
@@ -123,7 +128,10 @@ class _LoginViewState extends State<LoginView> {
                     border: const OutlineInputBorder(),
                     labelText: 'Password'),
               ),
-              TextButton(
+              const SizedBox(
+                height: 8.0,
+              ),
+              FilledButton(
                 onPressed: () async {
                   final email = _email.text;
                   final password = _password.text;
@@ -132,23 +140,23 @@ class _LoginViewState extends State<LoginView> {
                         password,
                       ));
                 },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                      Theme.of(context).colorScheme.primaryContainer),
-                ),
+                // style: ButtonStyle(
+                //   backgroundColor: MaterialStatePropertyAll(
+                //       Theme.of(context).colorScheme.primaryContainer),
+                // ),
                 child: const Text("Login"),
               ),
-              TextButton(
+              FilledButton.tonal(
                 onPressed: () {
                   context.read<AuthBloc>().add(const AuthEventForgotPassword());
                 },
                 child: const Text("Forgot Password"),
               ),
-              TextButton(
+              OutlinedButton(
                 onPressed: () {
                   context.read<AuthBloc>().add(const AuthEventShouldRegister());
                 },
-                child: const Text("Register"),
+                child: const Text("Goto Register"),
               ),
             ],
           ),

@@ -9,6 +9,7 @@ import 'package:mynotes/services/auth/bloc/auth_bloc.dart';
 import 'package:mynotes/services/auth/bloc/auth_event.dart';
 import 'package:mynotes/services/auth/bloc/auth_state.dart';
 import 'package:mynotes/themes/color_schemes.g.dart';
+import 'package:mynotes/views/forgot_password_view.dart';
 import 'package:mynotes/views/login_view.dart';
 import 'package:mynotes/views/notes/create_update_note_view.dart';
 import 'package:mynotes/views/notes/notes_view.dart';
@@ -54,10 +55,12 @@ class HomePage extends StatelessWidget {
           return const NotesView();
         } else if (state is AuthStateNeedsVerification) {
           return const VerifyEmailView();
-        } else if (state is AuthStateLoggedOut) {
-          return const LoginView();
         } else if (state is AuthStateShouldRegister) {
           return const RegisterView();
+        } else if (state is AuthStateForgotPassword) {
+          return const ForgotPasswordView();
+        } else if (state is AuthStateLoggedOut) {
+          return const LoginView();
         } else {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),

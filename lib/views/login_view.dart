@@ -69,22 +69,19 @@ class _LoginViewState extends State<LoginView> {
           toolbarHeight: 140,
           centerTitle: true,
           title: const Text(
-              style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-              ),
-              "Login"),
+            style: TextStyle(
+              fontSize: 48,
+              fontWeight: FontWeight.bold,
+            ),
+            "Login",
+          ),
         ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 32,
-                left: 24,
-                right: 24,
-                bottom: 8,
-              ),
-              child: TextField(
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
                 enableSuggestions: false,
@@ -105,14 +102,7 @@ class _LoginViewState extends State<LoginView> {
                     border: const OutlineInputBorder(),
                     labelText: 'Email'),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 24,
-                right: 24,
-                bottom: 8,
-              ),
-              child: TextFormField(
+              TextField(
                 controller: _password,
                 obscureText: true,
                 enableSuggestions: false,
@@ -133,29 +123,35 @@ class _LoginViewState extends State<LoginView> {
                     border: const OutlineInputBorder(),
                     labelText: 'Password'),
               ),
-            ),
-            TextButton(
-              onPressed: () async {
-                final email = _email.text;
-                final password = _password.text;
-                context.read<AuthBloc>().add(AuthEventLogIn(
-                      email,
-                      password,
-                    ));
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(
-                    Theme.of(context).colorScheme.primaryContainer),
+              TextButton(
+                onPressed: () async {
+                  final email = _email.text;
+                  final password = _password.text;
+                  context.read<AuthBloc>().add(AuthEventLogIn(
+                        email,
+                        password,
+                      ));
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(
+                      Theme.of(context).colorScheme.primaryContainer),
+                ),
+                child: const Text("Login"),
               ),
-              child: const Text("Login"),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add(const AuthEventShouldRegister());
-              },
-              child: const Text("Not registered yet? Click here"),
-            )
-          ],
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventForgotPassword());
+                },
+                child: const Text("Forgot Password"),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventShouldRegister());
+                },
+                child: const Text("Register"),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -122,24 +122,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ));
         final email = event.email;
         final password = event.password;
-        Exception? exception;
         try {
           await provider.createUser(
             email: email,
             password: password,
           );
-          try {
-            await provider.sendEmailVerification();
-          } on Exception catch (e) {
-            exception = e;
-          }
+          await provider.sendEmailVerification();
+          emit(const AuthStateNeedsVerification(
+            exception: null,
+            isLoading: false,
+          ));
         } on Exception catch (e) {
-          exception = e;
+          emit(AuthStateShouldRegister(
+            exception: e,
+            isLoading: false,
+          ));
         }
-        emit(AuthStateNeedsVerification(
-          exception: exception,
-          isLoading: false,
-        ));
       },
     );
 

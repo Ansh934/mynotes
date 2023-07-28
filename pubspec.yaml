@@ -66,8 +66,13 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter_launcher_icons:
   android: "launcher_icon"
+  image_path_android: "asset/icons/icon-512.png"
+  adaptive_icon_background: "asset/icons/icon_background.png"
+  adaptive_icon_foreground: "asset/icons/icon_foreground.png"
   ios: true
-  image_path: "asset/icons/my_notes.png"
+  image_path_ios: "asset/icons/icon-512-maskable.png"
+  remove_alpha_ios: true
+
 flutter:
 
   # The following line ensures that the Material Icons font is

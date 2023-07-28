@@ -36,7 +36,12 @@ class _NotesViewState extends State<NotesView> {
         centerTitle: true,
         title: const Row(
           children: [
-            Image(image: ExactAssetImage('asset/icons/my_notes.png', scale: 5)),
+            Image(
+              image: ExactAssetImage(
+                'asset/icons/icon-192.png',
+                scale: 4,
+              ),
+            ),
             Text(
                 style: TextStyle(
                   fontSize: 32,
@@ -46,12 +51,6 @@ class _NotesViewState extends State<NotesView> {
           ],
         ),
         actions: [
-          // IconButton(
-          //   onPressed: () {
-          //     Navigator.of(context).pushNamed(createOrUpdateNoteRoute);
-          //   },
-          //   icon: const Icon(Icons.add),
-          // ),
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
               switch (value) {

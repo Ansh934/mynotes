@@ -38,7 +38,7 @@ class _NotesViewState extends State<NotesView> {
           children: [
             Image(
               image: ExactAssetImage(
-                'asset/icons/icon-192.png',
+                'assets/icon/icon-192.png',
                 scale: 4,
               ),
             ),
